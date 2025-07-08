@@ -41,6 +41,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
-        public record ErrorResponse(String error) {
+    public record ErrorResponse(String error) {
     }
 }
