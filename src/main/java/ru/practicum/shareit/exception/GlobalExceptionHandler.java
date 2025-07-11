@@ -41,6 +41,12 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
+    @ExceptionHandler(Throwable.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleThrowable(Throwable ex) {
+        return new ErrorResponse("Unexpected error occurred: " + ex.getMessage());
+    }
+
     public record ErrorResponse(String error) {
     }
 }

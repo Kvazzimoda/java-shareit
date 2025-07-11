@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
 import java.util.List;
 
+import static ru.practicum.shareit.constants.HeaderConstants.USER_ID;
+
 /**
  * TODO Sprint add-controllers.
  */
@@ -18,26 +20,26 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto createItem(@RequestHeader(USER_ID) Long userId,
                               @Valid @RequestBody ItemDto itemDto) {
         return itemService.createItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId,
-                              @RequestHeader("X-Sharer-User-Id") Long userId,
+                              @RequestHeader(USER_ID) Long userId,
                               @RequestBody ItemUpdateDto itemUpdateDto) {
         return itemService.updateItem(userId, itemId, itemUpdateDto);
     }
 
     @GetMapping("/{itemId}")
     public ItemDto getItem(@PathVariable Long itemId,
-                           @RequestHeader("X-Sharer-User-Id") Long userId) {
+                           @RequestHeader(USER_ID) Long userId) {
         return itemService.getItem(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDto> getUserItems(@RequestHeader(USER_ID) Long userId) {
         return itemService.getUserItems(userId);
     }
 
