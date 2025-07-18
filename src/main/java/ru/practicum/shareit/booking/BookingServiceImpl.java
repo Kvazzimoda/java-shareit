@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.WrongDateValidationException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
@@ -33,8 +34,16 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Item is not available for booking");
         }
 
+        // Валидация дат
+        LocalDateTime now = LocalDateTime.now();
+        if (bookingDto.getStart().isBefore(now)) {
+            throw new WrongDateValidationException("Start date must be in the future");
+        }
         if (!bookingDto.getStart().isBefore(bookingDto.getEnd())) {
-            throw new BadRequestException("Start date must be before end date");
+            throw new WrongDateValidationException("End date must be after start date");
+        }
+        if (bookingDto.getStart().equals(bookingDto.getEnd())) {
+            throw new WrongDateValidationException("Start and end dates cannot be equal");
         }
 
         Booking booking = new Booking();

@@ -34,6 +34,12 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(errorMessage);
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleWrongDateValidationException(final WrongDateValidationException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(NotFoundException ex) {
