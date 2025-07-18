@@ -2,14 +2,20 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingMapper;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.comment.CommentMapper;
+import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,8 +23,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
-    private final Map<Long, Item> items = new HashMap<>();
-    private Long itemIdCounter = 1L;
+    private final ItemRepository itemRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
@@ -26,47 +33,73 @@ public class ItemServiceImpl implements ItemService {
         if (user == null) {
             throw new NotFoundException("User with id " + userId + " not found");
         }
-        Item item = ItemMapper.toItem(itemDto, userId);
-        item.setId(itemIdCounter++);
-        items.put(item.getId(), item);
+        Item item = ItemMapper.toItem(itemDto, user);
+        item = itemRepository.save(item);
         return ItemMapper.toDto(item);
     }
 
     public ItemDto updateItem(Long userId, Long itemId, ItemUpdateDto itemUpdateDto) {
-        Item item = items.get(itemId);
-        if (item == null || !item.getOwnerId().equals(userId)) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Item not found"));
+        if (!item.getOwner().getId().equals(userId)) {
             throw new ForbiddenException("Only owner can update item");
         }
         if (itemUpdateDto.getName() != null) item.setName(itemUpdateDto.getName());
         if (itemUpdateDto.getDescription() != null) item.setDescription(itemUpdateDto.getDescription());
         if (itemUpdateDto.getAvailable() != null) item.setAvailable(itemUpdateDto.getAvailable());
-        items.put(itemId, item);
+        item = itemRepository.save(item);
         return ItemMapper.toDto(item);
     }
 
     @Override
     public ItemDto getItem(Long itemId, Long userId) {
-        Item item = items.get(itemId);
-        if (item == null) {
-            throw new IllegalArgumentException("Item not found");
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Item not found"));
+        ItemDto itemDto = ItemMapper.toDto(item);
+        if (item.getOwner().getId().equals(userId)) {
+            itemDto.setLastBooking(bookingRepository.findByItemId(itemId).stream()
+                    .filter(b -> b.getEnd().isBefore(LocalDateTime.now()))
+                    .max(Comparator.comparing(Booking::getEnd))
+                    .map(BookingMapper::toDto)
+                    .orElse(null));
+            itemDto.setNextBooking(bookingRepository.findByItemId(itemId).stream()
+                    .filter(b -> b.getStart().isAfter(LocalDateTime.now()))
+                    .min(Comparator.comparing(Booking::getStart))
+                    .map(BookingMapper::toDto)
+                    .orElse(null));
         }
-        return ItemMapper.toDto(item);
+        itemDto.setComments(commentRepository.findByItemId(itemId).stream()
+                .map(CommentMapper::toDto)
+                .collect(Collectors.toList()));
+        return itemDto;
     }
 
     @Override
     public Item getItemModel(Long itemId, Long userId) {
-        Item item = items.get(itemId);
-        if (item == null) {
-            throw new IllegalArgumentException("Item not found");
-        }
-        return item; // Возвращаем модель напрямую
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Item not found"));
     }
 
     @Override
     public List<ItemDto> getUserItems(Long userId) {
-        return items.values().stream()
-                .filter(item -> item.getOwnerId().equals(userId))
-                .map(ItemMapper::toDto)
+        return itemRepository.findByOwnerId(userId).stream()
+                .map(item -> {
+                    ItemDto itemDto = ItemMapper.toDto(item);
+                    itemDto.setLastBooking(bookingRepository.findByItemId(item.getId()).stream()
+                            .filter(b -> b.getEnd().isBefore(LocalDateTime.now()))
+                            .max(Comparator.comparing(Booking::getEnd))
+                            .map(BookingMapper::toDto)
+                            .orElse(null));
+                    itemDto.setNextBooking(bookingRepository.findByItemId(item.getId()).stream()
+                            .filter(b -> b.getStart().isAfter(LocalDateTime.now()))
+                            .min(Comparator.comparing(Booking::getStart))
+                            .map(BookingMapper::toDto)
+                            .orElse(null));
+                    itemDto.setComments(commentRepository.findByItemId(item.getId()).stream()
+                            .map(CommentMapper::toDto)
+                            .collect(Collectors.toList()));
+                    return itemDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -75,11 +108,9 @@ public class ItemServiceImpl implements ItemService {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
-        String searchText = text.toLowerCase();
-        return items.values().stream()
-                .filter(Item::getAvailable)
-                .filter(item -> item.getName().toLowerCase().contains(searchText) ||
-                        item.getDescription().toLowerCase().contains(searchText))
+        String searchText = "%" + text + "%";
+        return itemRepository.searchAvailableByNameOrDescription(searchText)
+                .stream()
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
     }
