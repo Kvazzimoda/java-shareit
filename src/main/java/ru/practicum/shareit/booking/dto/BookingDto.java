@@ -4,12 +4,11 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Data
 public class BookingDto {
     private Long id;
@@ -22,4 +21,6 @@ public class BookingDto {
     @Future(message = "End date must be in the future")
     private LocalDateTime end;
     private BookingStatus status;
+    private UserDto booker; // Добавляем объект пользователя
+    private ItemDto item; // Добавляем объект предмета
 }

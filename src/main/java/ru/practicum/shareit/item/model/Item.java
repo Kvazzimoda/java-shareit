@@ -1,20 +1,27 @@
 package ru.practicum.shareit.item.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.*;
 import lombok.Data;
+import ru.practicum.shareit.user.model.User;
 
-/**
- * TODO Sprint add-controllers.
- */
+@Entity
+@Table(name = "items")
 @Data
 public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "Name cannot be blank")
+
+    @Column(name = "name", nullable = false, length = 255)
     private String name;
-    @NotBlank(message = "Description cannot be blank")
+
+    @Column(name = "description", nullable = false, length = 1024)
     private String description;
-    @NotNull(message = "Availability cannot be null")
+
+    @Column(name = "available", nullable = false)
     private Boolean available;
-    private Long ownerId;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
 }

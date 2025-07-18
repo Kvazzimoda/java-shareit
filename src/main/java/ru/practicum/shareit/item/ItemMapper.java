@@ -1,11 +1,14 @@
 package ru.practicum.shareit.item;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
+@UtilityClass
 public class ItemMapper {
-    public static ItemDto toDto(Item item) {
+    public ItemDto toDto(Item item) {
         ItemDto dto = new ItemDto();
         dto.setId(item.getId());
         dto.setName(item.getName());
@@ -14,17 +17,17 @@ public class ItemMapper {
         return dto;
     }
 
-    public static Item toItem(ItemDto dto, Long ownerId) {
+    public Item toItem(ItemDto dto, User owner) {
         Item item = new Item();
         item.setId(dto.getId());
         item.setName(dto.getName());
         item.setDescription(dto.getDescription());
         item.setAvailable(dto.getAvailable());
-        item.setOwnerId(ownerId);
+        item.setOwner(owner);
         return item;
     }
 
-    public static ItemUpdateDto toUpdateDto(ItemDto dto) {
+    public ItemUpdateDto toUpdateDto(ItemDto dto) {
         ItemUpdateDto updateDto = new ItemUpdateDto();
         updateDto.setName(dto.getName());
         updateDto.setDescription(dto.getDescription());
@@ -32,7 +35,7 @@ public class ItemMapper {
         return updateDto;
     }
 
-    public static ItemDto toDto(ItemUpdateDto updateDto) {
+    public ItemDto toDto(ItemUpdateDto updateDto) {
         ItemDto dto = new ItemDto();
         dto.setName(updateDto.getName());
         dto.setDescription(updateDto.getDescription());

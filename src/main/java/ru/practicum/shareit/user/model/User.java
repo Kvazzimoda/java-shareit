@@ -1,16 +1,21 @@
 package ru.practicum.shareit.user.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.*;
 import lombok.Data;
 
 
+@Entity
+@Table(name = "users")
 @Data
 public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "Name cannot be blank")
+
+    @Column(nullable = false, length = 255)
     private String name;
-    @NotBlank(message = "Email cannot be blank")
-    @Email(message = "Email should be valid")
+
+    @Column(nullable = false, unique = true, length = 512)
     private String email;
 }
