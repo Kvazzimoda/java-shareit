@@ -102,40 +102,43 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> getUserBookings(Long userId, String state) {
         userService.getUserModel(userId); // Проверка существования пользователя
         List<Booking> userBookings = bookingRepository.findByBookerId(userId);
-        return filterBookingsByState(userBookings, state);
+        BookingState bookingState = BookingState.from(state);
+        return filterBookingsByState(userBookings, bookingState);
     }
 
     @Override
     public List<BookingDto> getOwnerBookings(Long userId, String state) {
         userService.getUserModel(userId); // Проверка существования пользователя
         List<Booking> ownerBookings = bookingRepository.findByItemOwnerId(userId);
-        return filterBookingsByState(ownerBookings, state);
+        BookingState bookingState = BookingState.from(state);
+        return filterBookingsByState(ownerBookings, bookingState);
     }
 
-    private List<BookingDto> filterBookingsByState(List<Booking> bookings, String state) {
+    private List<BookingDto> filterBookingsByState(List<Booking> bookings, BookingState state) {
         LocalDateTime now = LocalDateTime.now();
-        return switch (state.toUpperCase()) {
-            case "CURRENT" -> bookings.stream()
+
+        return switch (state) {
+            case CURRENT -> bookings.stream()
                     .filter(b -> b.getStart().isBefore(now) && b.getEnd().isAfter(now))
                     .map(BookingMapper::toDto)
                     .collect(Collectors.toList());
-            case "PAST" -> bookings.stream()
+            case PAST -> bookings.stream()
                     .filter(b -> b.getEnd().isBefore(now))
                     .map(BookingMapper::toDto)
                     .collect(Collectors.toList());
-            case "FUTURE" -> bookings.stream()
+            case FUTURE -> bookings.stream()
                     .filter(b -> b.getStart().isAfter(now))
                     .map(BookingMapper::toDto)
                     .collect(Collectors.toList());
-            case "WAITING" -> bookings.stream()
+            case WAITING -> bookings.stream()
                     .filter(b -> b.getStatus() == BookingStatus.WAITING)
                     .map(BookingMapper::toDto)
                     .collect(Collectors.toList());
-            case "REJECTED" -> bookings.stream()
+            case REJECTED -> bookings.stream()
                     .filter(b -> b.getStatus() == BookingStatus.REJECTED)
                     .map(BookingMapper::toDto)
                     .collect(Collectors.toList());
-            default -> bookings.stream()
+            case ALL -> bookings.stream()
                     .map(BookingMapper::toDto)
                     .sorted((b1, b2) -> b2.getStart().compareTo(b1.getStart()))
                     .collect(Collectors.toList());
