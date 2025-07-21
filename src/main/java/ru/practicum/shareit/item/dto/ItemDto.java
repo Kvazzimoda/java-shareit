@@ -3,10 +3,11 @@ package ru.practicum.shareit.item.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.item.comment.CommentDto;
 
-/**
- * TODO Sprint add-controllers.
- */
+import java.util.List;
+
 @Data
 public class ItemDto {
     private Long id;
@@ -16,4 +17,7 @@ public class ItemDto {
     private String description;
     @NotNull(message = "Availability cannot be null")
     private Boolean available;
+    private BookingDto lastBooking;
+    private BookingDto nextBooking;
+    private List<CommentDto> comments;
 }

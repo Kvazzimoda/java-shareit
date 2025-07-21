@@ -10,9 +10,6 @@ import java.util.List;
 
 import static ru.practicum.shareit.constants.HeaderConstants.USER_ID;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
