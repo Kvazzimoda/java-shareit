@@ -13,7 +13,6 @@ import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
