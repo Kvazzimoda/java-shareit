@@ -15,7 +15,7 @@
 
 
     <properties>
-        <start-class>ru.practicum.shareit.ShareItServer</start-class>
+        <start-class>ru.practicum.shareit.ShareItGateway</start-class>
     </properties>
 
     <dependencies>
