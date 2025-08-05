@@ -201,10 +201,14 @@ class ItemServiceImplTest {
         ItemDto result = itemService.updateItem(userId, itemId, updateDto);
 
         // Then
-        assertNull(result); // Из-за бага в реализации (возвращается null)
-        assertEquals("New Name", existingItem.getName());
-        assertEquals("New Desc", existingItem.getDescription());
-        assertFalse(existingItem.getAvailable());
+        assertNotNull(result, "Result should not be null"); // Проверяем, что результат не null
+        assertEquals(itemId, result.getId(), "Item ID should match");
+        assertEquals("New Name", result.getName(), "Item name should be updated");
+        assertEquals("New Desc", result.getDescription(), "Item description should be updated");
+        assertFalse(result.getAvailable(), "Item availability should be updated");
+        assertEquals("New Name", existingItem.getName(), "Existing item name should be updated");
+        assertEquals("New Desc", existingItem.getDescription(), "Existing item description should be updated");
+        assertFalse(existingItem.getAvailable(), "Existing item availability should be updated");
     }
 
     @Test
