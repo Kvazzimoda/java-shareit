@@ -51,6 +51,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toDto(item);
     }
 
+    @Override
     public ItemDto updateItem(Long userId, Long itemId, ItemUpdateDto itemUpdateDto) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
