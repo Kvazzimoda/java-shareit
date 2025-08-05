@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
@@ -16,9 +15,11 @@ public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
 
     public BookingClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                .requestFactory(SimpleClientHttpRequestFactory::new)
-                .build());
+        super(
+                builder
+                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
+                        .build()
+        );
     }
 
     public ResponseEntity<Object> getBookings(long userId, BookingState state, Integer from, Integer size) {
