@@ -10,12 +10,6 @@ services:
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
 
-    healthcheck:
-      test: curl -f http://localhost:8080 || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 12
-
   server:
     build: server
     image: shareit-server
@@ -28,12 +22,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
       - SPRING_DATASOURCE_USERNAME=shareit
       - SPRING_DATASOURCE_PASSWORD=shareit
-
-    healthcheck:
-      test: curl -f http://localhost:9090 || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 12
 
   db:
     image: postgres:16.1
