@@ -61,8 +61,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemUpdateDto.getDescription() != null) item.setDescription(itemUpdateDto.getDescription());
         if (itemUpdateDto.getAvailable() != null) item.setAvailable(itemUpdateDto.getAvailable());
         item = itemRepository.save(item);
-        ItemMapper.toDto(item);
-        return null;
+        return ItemMapper.toDto(item);
     }
 
     @Override
